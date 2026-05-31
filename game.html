@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Rush | DE-WISE Games</title>
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #00E5FF;
+            --accent: #FFD700;
+            --bg: #02050E;
+            --surface: rgba(255, 255, 255, 0.05);
+            --border: rgba(255, 255, 255, 0.1);
+            --text: #F8FAFC;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        body { background: var(--bg); color: var(--text); overflow-x: hidden; min-height: 100vh; }
+
+        header {
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+            background: var(--bg);
+            position: sticky; top: 0; z-index: 50;
+        }
+        .back-btn { color: white; font-size: 1.5rem; text-decoration: none; }
+        .stat-box { background: var(--surface); padding: 8px 15px; border-radius: 12px; border: 1px solid var(--border); font-weight: bold; font-size: 0.9rem; }
+
+        .game-wrapper {
+            padding: 20px;
+            max-width: 600px;
+            margin: auto;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            min-height: calc(100vh - 80px);
+        }
+
+        .question-card {
+            background: linear-gradient(145deg, rgba(255,255,255,0.05), rgba(255,255,255,0.01));
+            padding: 25px;
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .category-tag { font-size: 0.65rem; color: var(--primary); text-transform: uppercase; letter-spacing: 2px; font-weight: 800; display: block; margin-bottom: 10px; }
+
+        .options-grid { display: grid; gap: 10px; }
+        .option {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            padding: 16px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: 0.2s;
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .option.correct { background: #00C853 !important; border-color: #00E676; color: white; }
+        .option.wrong { background: #FF3D00 !important; border-color: #FF6E40; color: white; }
+        .option.disabled { pointer-events: none; opacity: 0.6; }
+
+        /* --- SCREENS --- */
+        .overlay-screen {
+            position: fixed; inset: 0; background: var(--bg);
+            z-index: 100; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; text-align: center; padding: 25px;
+            overflow-y: auto;
+        }
+
+        .leaderboard-table {
+            width: 100%;
+            max-width: 300px;
+            margin: 20px 0;
+            background: var(--surface);
+            border-radius: 15px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+        }
+        .leader-row {
+            display: flex; justify-content: space-between;
+            padding: 10px 15px; border-bottom: 1px solid var(--border);
+            font-size: 0.9rem;
+        }
+        .leader-row:last-child { border: none; }
+        .leader-row span:first-child { color: var(--accent); font-weight: bold; }
+
+        .name-input-box {
+            width: 100%;
+            max-width: 250px;
+            margin: 15px 0 5px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .name-input-box input {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid var(--border);
+            padding: 12px 16px;
+            border-radius: 25px;
+            color: white;
+            text-align: center;
+            font-size: 1rem;
+            outline: none;
+        }
+        .name-input-box input:focus {
+            border-color: var(--primary);
+        }
+
+        .btn-play {
+            background: var(--primary); color: #000; padding: 15px 35px;
+            border-radius: 30px; border: none; font-weight: 900;
+            cursor: pointer; margin-top: 15px; width: 100%; max-width: 250px;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <a href="index.html" class="back-btn"><i class="ri-arrow-left-line"></i></a>
+        <div style="display: flex; gap: 8px;">
+            <div class="stat-box">Score: <span id="score" style="color:var(--accent)">0</span></div>
+            <div class="stat-box">Time: <span id="timer" style="color:var(--primary)">60</span>s</div>
+        </div>
+    </header>
+
+    <div id="start-screen" class="overlay-screen">
+        <i class="ri-medal-fill" style="font-size: 4rem; color: var(--accent);"></i>
+        <h1 style="margin-top: 10px;">QUIZ RUSH</h1>
+        <p style="color: #94A3B8; font-size: 0.9rem; margin: 10px 0 20px;">Fast answers = More time!</p>
+        
+        <div class="leaderboard-table">
+            <div style="padding: 10px; font-weight: 800; font-size: 0.7rem; color: var(--primary); border-bottom: 1px solid var(--border)">TOP SCHOLARS</div>
+            <div id="start-leaderboard-list"></div>
+        </div>
+
+        <button class="btn-play" onclick="startGame()">⚡ START GAME</button>
+    </div>
+
+    <div id="end-screen" class="overlay-screen" style="display: none;">
+        <i class="ri-award-line" style="font-size: 4rem; color: var(--primary);"></i>
+        <h2 style="margin-top:10px">TIME EXPIRED</h2>
+        <div style="font-size: 3.5rem; font-weight: 900; color: var(--accent);" id="final-score">0</div>
+        
+        <!-- Interactive Name Entry Unit -->
+        <div class="name-input-box" id="save-score-zone">
+            <input type="text" id="player-name" placeholder="Enter Your Name" maxlength="15">
+            <button class="btn-play" style="margin-top:0;" onclick="submitScore()">💾 SAVE SCORE</button>
+        </div>
+
+        <div class="leaderboard-table" style="margin-top:15px;">
+            <div style="padding: 10px; font-weight: 800; font-size: 0.7rem; color: var(--primary); border-bottom: 1px solid var(--border)">UPDATED RANKINGS</div>
+            <div id="end-leaderboard-list"></div>
+        </div>
+
+        <button class="btn-play" onclick="location.reload()">🔄 REPLAY</button>
+        <a href="index.html" style="color: #64748B; margin-top: 15px; font-size: 0.8rem; text-decoration: none;">Return to Home</a>
+    </div>
+
+    <div class="game-wrapper">
+        <div class="question-card">
+            <span class="category-tag" id="category">DE-WISE CORE</span>
+            <h2 id="question" style="font-size: 1.1rem;">Loading...</h2>
+        </div>
+        <div class="options-grid" id="options"></div>
+    </div>
+
+    <script>
+        const questions = [
+            // Tech Skills & Programming
+            { q: "Which tool is used to build mobile apps with web tech?", a: ["Apache Cordova", "Photoshop", "Excel", "WordPress"], c: 0, cat: "Tech Skills" },
+            { q: "In programming, what does 'CSS' stand for?", a: ["Code Style Sheet", "Cascading Style Sheets", "Color System Set", "Computer Style"], c: 1, cat: "Tech Skills" },
+            { q: "Which tag is used for the largest heading in HTML?", a: ["<h6>", "<head>", "<h1>", "<header>"], c: 2, cat: "Frontend" },
+            { q: "What is the primary language used to add interactivity to web pages?", a: ["Python", "HTML", "JavaScript", "C++"], c: 2, cat: "Tech Skills" },
+            { q: "What does SQL stand for?", a: ["Structured Query Language", "Simple Quick Logic", "System Quantify Level", "Synchronized Query Logic"], c: 0, cat: "Tech Skills" },
+            { q: "Which of the following is an open-source operating system kernel?", a: ["Windows", "Linux", "macOS", "iOS"], c: 1, cat: "Tech Skills" },
+            { q: "In Git, what command sends your local modifications to a remote repository?", a: ["git fetch", "git pull", "git commit", "git push"], c: 3, cat: "Tech Skills" },
+            
+            // Graphics & UI/UX Design
+            { q: "Which file format preserves transparency in static graphic elements?", a: ["JPEG", "PNG", "BMP", "GIF"], c: 1, cat: "Graphics & Media" },
+            { q: "What does 'PPI' stand for in digital imaging layouts?", a: ["Pixels Per Inch", "Points Per Image", "Picture Print Ink", "Primary Phase Index"], c: 0, cat: "Graphics & Media" },
+            { q: "Which vector design program relies on geometric paths instead of pixels?", a: ["Adobe Photoshop", "Adobe Illustrator", "MS Paint", "Corel Photo-Paint"], c: 1, cat: "Graphics & Media" },
+            { q: "In typography, what name is given to the tiny decorative feet at the ends of character strokes?", a: ["Kerning", "Serif", "Sans", "Ascender"], c: 1, cat: "Graphics & Media" },
+            { q: "Which color model is fundamentally optimized for physical print design production?", a: ["RGB", "HEX", "CMYK", "HSL"], c: 2, cat: "Graphics & Media" },
+            { q: "What is the term used for the spacing adjustment between two specific characters?", a: ["Leading", "Tracking", "Kerning", "Padding"], c: 2, cat: "Graphics & Media" },
+
+            // General Knowledge & Subjects
+            { q: "What is a major focus of Business Management?", a: ["Cooking", "Leadership", "Fishing", "Singing"], c: 1, cat: "Business" },
+            { q: "Which gas do green plants absorb from the atmosphere during photosynthesis?", a: ["Oxygen", "Nitrogen", "Carbon Dioxide", "Hydrogen"], c: 2, cat: "Science" },
+            { q: "What value is obtained by solving for x in: 3x - 7 = 14?", a: ["x = 5", "x = 7", "x = 9", "x = 6"], c: 1, cat: "Mathematics" },
+            { q: "Which planet in our solar system is known as the Red Planet?", a: ["Venus", "Mars", "Jupiter", "Saturn"], c: 1, cat: "Science" },
+            { q: "Who wrote the classic tragedy play 'Romeo and Juliet'?", a: ["Charles Dickens", "Mark Twain", "William Shakespeare", "Jane Austen"], c: 2, cat: "Literature" },
+            { q: "What is the hardest naturally occurring substance on Earth?", a: ["Gold", "Iron", "Diamond", "Quartz"], c: 2, cat: "Science" },
+
+            // Institutional & Branding
+            { q: "What is the primary color of the DE-WISE brand?", a: ["Red", "Green", "Navy Blue", "Pink"], c: 2, cat: "Institutional" }
+        ];
+
+        let score = 0;
+        let timeLeft = 60;
+        let timerId;
+        let currentQuestion = {};
+        let pool = [];
+
+        window.onload = () => loadLeaderboard('start-leaderboard-list');
+
+        function loadLeaderboard(targetElementId) {
+            const scores = JSON.parse(localStorage.getItem('dw_leaderboard')) || [];
+            const list = document.getElementById(targetElementId);
+            list.innerHTML = scores.length ? '' : '<div class="leader-row">No records yet</div>';
+            
+            scores.slice(0, 5).forEach((s, i) => {
+                list.innerHTML += `<div class="leader-row"><span>#${i+1} ${s.name}</span><span>${s.score}</span></div>`;
+            });
+        }
+
+        function startGame() {
+            document.getElementById('start-screen').style.display = 'none';
+            score = 0;
+            timeLeft = 60;
+            document.getElementById('score').innerText = score;
+            document.getElementById('timer').innerText = timeLeft;
+            pool = [...questions]; 
+            nextQuestion();
+            timerId = setInterval(() => {
+                timeLeft--;
+                document.getElementById('timer').innerText = timeLeft;
+                if (timeLeft <= 0) endGame();
+            }, 1000);
+        }
+
+        function nextQuestion() {
+            if (pool.length === 0) {
+                pool = [...questions]; 
+            }
+            
+            const randIndex = Math.floor(Math.random() * pool.length);
+            currentQuestion = pool.splice(randIndex, 1)[0];
+            
+            document.getElementById('question').innerText = currentQuestion.q;
+            document.getElementById('category').innerText = currentQuestion.cat;
+            
+            const optionsBox = document.getElementById('options');
+            optionsBox.innerHTML = '';
+            
+            currentQuestion.a.forEach((opt, i) => {
+                const div = document.createElement('div');
+                div.className = 'option';
+                div.setAttribute('data-index', i);
+                div.innerHTML = `<span>${opt}</span><i class="ri-arrow-right-s-line" id="icon-${i}"></i>`;
+                div.onclick = () => checkAnswer(i, div);
+                optionsBox.appendChild(div);
+            });
+        }
+
+        function checkAnswer(chosenIndex, selectedElement) {
+            const allOptions = document.querySelectorAll('.option');
+            allOptions.forEach(el => el.classList.add('disabled'));
+            
+            const statusIcon = selectedElement.querySelector('i');
+            
+            if (chosenIndex === currentQuestion.c) {
+                selectedElement.classList.add('correct');
+                statusIcon.className = "ri-checkbox-circle-fill";
+                score += 10;
+                timeLeft += 5;
+            } else {
+                // Flash the chosen answer red
+                selectedElement.classList.add('wrong');
+                statusIcon.className = "ri-close-circle-fill";
+                timeLeft = Math.max(0, timeLeft - 3);
+
+                // Auto-locate and highlight the true answer in green
+                allOptions.forEach(el => {
+                    if (parseInt(el.getAttribute('data-index')) === currentQuestion.c) {
+                        el.classList.add('correct');
+                        el.querySelector('i').className = "ri-checkbox-circle-fill";
+                    }
+                });
+            }
+            
+            document.getElementById('score').innerText = score;
+            document.getElementById('timer').innerText = timeLeft;
+            
+            if (timeLeft <= 0) {
+                setTimeout(endGame, 1000); // Slight delay so correct answer can be viewed
+            } else {
+                setTimeout(nextQuestion, 1200); // 1.2s delay to review corrections
+            }
+        }
+
+        function endGame() {
+            clearInterval(timerId);
+            document.getElementById('end-screen').style.display = 'flex';
+            document.getElementById('final-score').innerText = score;
+            document.getElementById('save-score-zone').style.display = 'flex';
+            document.getElementById('player-name').value = '';
+            loadLeaderboard('end-leaderboard-list');
+        }
+
+        function submitScore() {
+            let nameInput = document.getElementById('player-name').value.trim();
+            if (!nameInput) nameInput = "Anonymous";
+
+            let scores = JSON.parse(localStorage.getItem('dw_leaderboard')) || [];
+            scores.push({ name: nameInput, score: score });
+            scores.sort((a, b) => b.score - a.score);
+            localStorage.setItem('dw_leaderboard', JSON.stringify(scores));
+
+            // Hide entry field and update leaderboard table view instantly
+            document.getElementById('save-score-zone').style.display = 'none';
+            loadLeaderboard('end-leaderboard-list');
+        }
+    </script>
+</body>
+</html>

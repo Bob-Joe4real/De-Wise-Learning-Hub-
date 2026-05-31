@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tech Player | DE-WISE Hub</title>
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #00E5FF;
+            --bg: #02050E;
+            --surface: #0B1224;
+            --border: rgba(255, 255, 255, 0.1);
+            --text: #F8FAFC;
+            --success: #00E676;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        body { background: var(--bg); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; }
+
+        /* --- HEADER --- */
+        header {
+            padding: 15px 20px;
+            background: var(--surface);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border);
+        }
+        .back-btn { color: white; text-decoration: none; font-size: 1.2rem; display: flex; align-items: center; gap: 8px; }
+
+        /* --- MAIN PLAYER AREA --- */
+        .video-section {
+            width: 100%;
+            background: #000;
+            position: relative;
+            aspect-ratio: 16/9;
+        }
+        .video-section iframe { width: 100%; height: 100%; border: none; }
+
+        .content-container {
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .lesson-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+        }
+        .lesson-title h1 { font-size: 1.4rem; margin-bottom: 5px; }
+        .lesson-title p { font-size: 0.85rem; color: #94A3B8; }
+
+        /* --- ACTION BUTTONS --- */
+        .actions { display: flex; gap: 10px; margin-bottom: 30px; }
+        .btn-quiz { 
+            background: var(--primary); color: #000; padding: 12px 20px; 
+            border-radius: 8px; border: none; font-weight: bold; cursor: pointer;
+            display: flex; align-items: center; gap: 8px; transition: 0.3s;
+        }
+        .btn-quiz:hover { opacity: 0.8; transform: translateY(-2px); }
+
+        .btn-complete {
+            background: transparent; border: 1px solid var(--success); color: var(--success);
+            padding: 12px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s;
+        }
+        .btn-complete:hover { background: var(--success); color: #000; }
+
+        /* --- CURRICULUM LIST --- */
+        .curriculum-box {
+            background: var(--surface);
+            border-radius: 15px;
+            border: 1px solid var(--border);
+            overflow: hidden;
+            margin-bottom: 50px;
+        }
+        .curriculum-header { padding: 15px 20px; background: rgba(255,255,255,0.03); font-weight: bold; border-bottom: 1px solid var(--border); }
+        
+        .lesson-row {
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            cursor: pointer;
+            border-bottom: 1px solid var(--border);
+            transition: 0.2s;
+        }
+        .lesson-row:hover { background: rgba(255,255,255,0.05); }
+        .lesson-row.active { border-left: 4px solid var(--primary); background: rgba(0,229,255,0.05); }
+        .lesson-row.completed i { color: var(--success); }
+        
+        .lesson-row i { font-size: 1.2rem; color: #475569; }
+        .lesson-text { flex: 1; font-size: 0.95rem; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <a href="index.html" class="back-btn"><i class="ri-arrow-left-s-line"></i> <span>Tech Skills</span></a>
+        <div id="course-progress" style="font-size: 0.8rem; font-weight: bold; color: var(--primary);">Progress: 0%</div>
+    </header>
+
+    <div class="video-section">
+        <iframe id="main-video" src="https://www.youtube.com/embed/SqcY0GlETPk" allow="autoplay; fullscreen"></iframe>
+    </div>
+
+    <div class="content-container">
+        <div class="lesson-header">
+            <div class="lesson-title">
+                <h1 id="active-lesson-name">HTML Fundamentals</h1>
+                <p>Course: Fullstack Development • Instructor: Prof. Joseph</p>
+            </div>
+        </div>
+
+        <div class="actions">
+            <button class="btn-quiz" onclick="window.location.href='game.html'">
+                <i class="ri-question-answer-line"></i> Take Lesson Quiz
+            </button>
+            <button class="btn-complete" id="mark-done" onclick="markCompleted()">
+                <i class="ri-checkbox-circle-line"></i> Mark as Finished
+            </button>
+        </div>
+
+        <div class="curriculum-box">
+            <div class="curriculum-header">Course Modules</div>
+            <div id="module-list"></div>
+        </div>
+    </div>
+
+    <script>
+        // FIXED: Added missing comma between ID 6 and ID 7
+        const techSkills = [
+            { id: 1, title: "HTML Fundamentals", vid: "SqcY0GlETPk", cat: "Frontend" },
+            { id: 2, title: "CSS Styling & Layouts", vid: "1PnVor36_40", cat: "Frontend" },
+            { id: 3, title: "JavaScript Essentials", vid: "hdI2bqOjy3c", cat: "Frontend" },
+            { id: 4, title: "React Components", vid: "SqcY0GlETPk", cat: "Frontend" },
+            { id: 5, title: "Node.js Backend", vid: "TlB_eWDSMt4", cat: "Backend" },
+            { id: 6, title: "Database Architecture", vid: "SqcY0GlETPk", cat: "Backend" },
+            { id: 7, title: "Cyber Security", vid: "lpa8uy4DyMo", cat: "Backend" },
+            { id: 8, title: "Graphics Design", vid: "GQS7wPujL2k", cat: "Backend" }
+        ];
+
+        let activeId = 1;
+
+        window.onload = () => {
+            renderModules();
+            updateProgress();
+        };
+
+        function renderModules() {
+            const list = document.getElementById('module-list');
+            const completed = JSON.parse(localStorage.getItem('dw_completed_lessons')) || [];
+            list.innerHTML = '';
+
+            techSkills.forEach(skill => {
+                const isDone = completed.includes(skill.id);
+                const isActive = skill.id === activeId;
+                
+                const row = document.createElement('div');
+                row.className = `lesson-row ${isActive ? 'active' : ''} ${isDone ? 'completed' : ''}`;
+                row.onclick = () => switchLesson(skill.id);
+                row.innerHTML = `
+                    <i class="${isDone ? 'ri-checkbox-circle-fill' : 'ri-play-circle-line'}"></i>
+                    <div class="lesson-text">${skill.title}</div>
+                    <small style="font-size: 0.7rem; opacity: 0.5;">${skill.cat}</small>
+                `;
+                list.appendChild(row);
+            });
+        }
+
+        function switchLesson(id) {
+            activeId = id;
+            const skill = techSkills.find(s => s.id === id);
+            // Added ?rel=0 to prevent suggested videos from other channels
+            document.getElementById('main-video').src = `https://www.youtube.com/embed/${skill.vid}?autoplay=1&rel=0`;
+            document.getElementById('active-lesson-name').innerText = skill.title;
+            renderModules();
+        }
+
+        function markCompleted() {
+            let completed = JSON.parse(localStorage.getItem('dw_completed_lessons')) || [];
+            if (!completed.includes(activeId)) {
+                completed.push(activeId);
+                localStorage.setItem('dw_completed_lessons', JSON.stringify(completed));
+                renderModules();
+                updateProgress();
+            } else {
+                alert("You've already finished this lesson!");
+            }
+        }
+
+        function updateProgress() {
+            const completed = JSON.parse(localStorage.getItem('dw_completed_lessons')) || [];
+            // Calculate percentage based on unique completed lessons
+            const percent = Math.round((completed.length / techSkills.length) * 100);
+            document.getElementById('course-progress').innerText = `Progress: ${percent}%`;
+        }
+    </script>
+</body>
+</html>

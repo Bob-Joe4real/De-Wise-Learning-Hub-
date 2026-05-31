@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kiddies Zone | DE-WISE Hub</title>
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+    <style>
+        :root {
+            --kiddy-pink: #FF4081;
+            --kiddy-yellow: #FFD600;
+            --kiddy-blue: #00B0FF;
+            --kiddy-green: #00E676;
+            --kiddy-purple: #D500F9;
+            --bg: #0A0F1D;
+            --card-bg: rgba(255, 255, 255, 0.05);
+            --text: #FFFFFF;
+        }
+
+        * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+            font-family: 'Comic Sans MS', 'Chalkboard SE', sans-serif; 
+        }
+        
+        body { 
+            background: var(--bg); 
+            color: var(--text); 
+            padding-bottom: 60px; 
+            min-height: 100vh;
+        }
+
+        header {
+            padding: 30px 20px;
+            background: linear-gradient(135deg, var(--kiddy-pink), var(--kiddy-purple));
+            border-bottom-left-radius: 35px;
+            border-bottom-right-radius: 35px;
+            text-align: center;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+            position: relative;
+        }
+        
+        .back-btn { 
+            position: absolute; 
+            left: 20px; 
+            top: 50%;
+            transform: translateY(-50%);
+            color: white; 
+            font-size: 2rem; 
+            transition: transform 0.2s;
+        }
+        .back-btn:hover { transform: translateY(-50%) scale(1.1); }
+
+        h1 {
+            font-size: 2.2rem;
+            letter-spacing: 2px;
+            text-shadow: 2px 2px 0px rgba(0,0,0,0.2);
+        }
+
+        .kids-grid { 
+            padding: 25px; 
+            display: grid; 
+            grid-template-columns: repeat(2, 1fr); 
+            gap: 20px; 
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .kiddy-card {
+            aspect-ratio: 1/1; 
+            border-radius: 25px; 
+            display: flex; 
+            flex-direction: column;
+            align-items: center; 
+            justify-content: center; 
+            text-align: center;
+            border: 4px solid rgba(255,255,255,0.1); 
+            cursor: pointer; 
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 10px 15px rgba(0,0,0,0.2);
+        }
+        .kiddy-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 25px rgba(0,0,0,0.3);
+        }
+        .kiddy-card i { font-size: 3.5rem; margin-bottom: 12px; }
+        .kiddy-card span { font-size: 1.3rem; font-weight: bold; }
+
+        .play-area {
+            max-width: 600px;
+            margin: 20px auto; 
+            background: var(--card-bg); 
+            border-radius: 25px;
+            padding: 25px; 
+            display: none; 
+            border: 3px dashed rgba(255,255,255,0.15);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+        }
+        .play-area.active { display: block; animation: pop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+
+        @keyframes pop { 
+            from { transform: scale(0.9); opacity: 0; } 
+            to { transform: scale(1); opacity: 1; } 
+        }
+
+        /* Alphabet/Number Grids */
+        .item-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
+        
+        .grid-item { 
+            background: white; 
+            color: #111; 
+            padding: 18px 5px; 
+            border-radius: 16px; 
+            text-align: center; 
+            font-weight: 900; 
+            font-size: 1.4rem; 
+            cursor: pointer;
+            box-shadow: 0 5px 0px #ccc;
+            transition: all 0.1s ease;
+            user-select: none;
+        }
+        .grid-item:active {
+            transform: translateY(4px);
+            box-shadow: 0 1px 0px #ccc;
+        }
+
+        /* Active tracking focus class */
+        .speaking-highlight {
+            background: #fff !important;
+            color: #000 !important;
+            animation: pulse-glow 0.5s infinite alternate;
+            transform: scale(1.1) !important;
+            z-index: 10;
+            box-shadow: 0 0 25px rgba(255, 255, 255, 1) !important;
+        }
+
+        @keyframes pulse-glow {
+            from { box-shadow: 0 0 10px rgba(255,255,255,0.5); }
+            to { box-shadow: 0 0 25px rgba(255,255,255,1); }
+        }
+
+        /* Multiplication Controls */
+        .math-controls { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            margin-bottom: 20px; 
+            background: var(--kiddy-yellow); 
+            color: #000; 
+            padding: 12px; 
+            border-radius: 18px; 
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        .math-btn { 
+            background: #000; 
+            color: #fff; 
+            border: none; 
+            padding: 8px 18px; 
+            border-radius: 12px; 
+            font-weight: bold; 
+            cursor: pointer; 
+            font-size: 1rem;
+            transition: transform 0.2s;
+        }
+        .math-btn:hover { transform: scale(1.05); }
+        #table-title { font-size: 1.5rem; font-weight: 900; }
+
+        .math-row {
+            display: flex; 
+            justify-content: space-between; 
+            padding: 12px 15px; 
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            font-size: 1.3rem;
+            font-weight: bold;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+
+        /* Continuous Audio Engine Buttons */
+        .audio-control-btn {
+            width: 100%;
+            padding: 15px;
+            border-radius: 18px;
+            border: none;
+            font-size: 1.1rem;
+            font-weight: 900;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 15px;
+            box-shadow: 0 5px 0px rgba(0,0,0,0.2);
+            transition: all 0.2s;
+        }
+        .audio-control-btn:active {
+            transform: translateY(3px);
+            box-shadow: 0 2px 0px rgba(0,0,0,0.2);
+        }
+
+        .video-box { 
+            width: 100%; 
+            aspect-ratio: 16/9; 
+            border-radius: 20px; 
+            overflow: hidden; 
+            margin-bottom: 20px; 
+            border: 4px solid var(--kiddy-green); 
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+        }
+
+        .close-btn { 
+            margin-top: 25px; 
+            width: 100%; 
+            padding: 15px; 
+            border-radius: 18px; 
+            border: none; 
+            font-weight: 900; 
+            font-size: 1.2rem;
+            cursor: pointer; 
+            box-shadow: 0 5px 0px rgba(0,0,0,0.2);
+            transition: all 0.2s;
+        }
+        .close-btn:active {
+            transform: translateY(3px);
+            box-shadow: 0 2px 0px rgba(0,0,0,0.2);
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <a href="index.html" class="back-btn"><i class="ri-arrow-left-circle-fill"></i></a>
+        <h1>KIDDIES HUB 🍭</h1>
+    </header>
+
+    <div class="kids-grid" id="main-grid">
+        <div class="kiddy-card" style="background: var(--kiddy-pink);" onclick="showArea('alphabet')"><i class="ri-font-size"></i><span>ABCs</span></div>
+        <div class="kiddy-card" style="background: var(--kiddy-blue);" onclick="showArea('numbers')"><i class="ri-number-1"></i><span>123s</span></div>
+        <div class="kiddy-card" style="background: var(--kiddy-yellow); color: black;" onclick="showArea('math')"><i class="ri-table-line"></i><span>Times Table</span></div>
+        <div class="kiddy-card" style="background: var(--kiddy-green);" onclick="showArea('rhymes')"><i class="ri-music-2-line"></i><span>Rhymes</span></div>
+    </div>
+
+    <div id="alphabet" class="play-area">
+        <h2 style="text-align: center; margin-bottom: 20px; color: var(--kiddy-pink); font-size: 1.8rem;">Speak the Letters! 🌟</h2>
+        <div class="item-grid" id="alpha-box"></div>
+        
+        <button id="btn-audio-alphabet" class="audio-control-btn" style="background: #FFF; color: var(--kiddy-pink);" onclick="toggleAutoRead('alphabet')">
+            <i class="ri-volume-up-fill"></i> <span>Read All Automatically</span>
+        </button>
+        
+        <button class="close-btn" style="background: var(--kiddy-pink); color: white;" onclick="closeArea()">DONE</button>
+    </div>
+
+    <div id="numbers" class="play-area">
+        <h2 style="text-align: center; margin-bottom: 20px; color: var(--kiddy-blue); font-size: 1.8rem;">Count with Me! 🔢</h2>
+        <div class="item-grid" id="num-box"></div>
+        
+        <button id="btn-audio-numbers" class="audio-control-btn" style="background: #FFF; color: var(--kiddy-blue);" onclick="toggleAutoRead('numbers')">
+            <i class="ri-volume-up-fill"></i> <span>Read All Automatically</span>
+        </button>
+        
+        <button class="close-btn" style="background: var(--kiddy-blue); color: white;" onclick="closeArea()">DONE</button>
+    </div>
+
+    <div id="rhymes" class="play-area">
+        <h2 style="text-align: center; margin-bottom: 20px; color: var(--kiddy-green); font-size: 1.8rem;">Kiddy Rhymes 🎬</h2>
+        <div class="video-box">
+            <iframe id="rhyme-player" width="100%" height="100%" src="https://www.youtube.com/embed/fN1Cyr0ZK9M" frameborder="0" allowfullscreen></iframe>
+        </div>
+        <div style="display: flex; gap: 12px;">
+            <button onclick="changeRhyme('Gk_MTwFICik')" style="flex:1; padding: 12px; border-radius: 12px; border:none; background:rgba(255,255,255,0.1); color:white; font-weight:bold; font-size:0.85rem; cursor:pointer;">Fun Rhymes</button>
+            <button onclick="changeRhyme('k-I7amQw11k')" style="flex:1; padding: 12px; border-radius: 12px; border:none; background:rgba(255,255,255,0.1); color:white; font-weight:bold; font-size:0.85rem; cursor:pointer;">Kiddies Rhymes</button>
+        </div>
+        <button class="close-btn" style="background: var(--kiddy-green); color: black;" onclick="closeArea()">DONE</button>
+    </div>
+
+    <div id="math" class="play-area">
+        <div class="math-controls">
+            <button class="math-btn" onclick="changeTable(-1)">Prev</button>
+            <h2 id="table-title">Table 2</h2>
+            <button class="math-btn" onclick="changeTable(1)">Next</button>
+        </div>
+        <div id="math-box" style="background: rgba(255,255,255,0.03); border-radius: 20px; padding: 10px; border: 1px solid rgba(255,255,255,0.05)"></div>
+        
+        <button id="btn-audio-math" class="audio-control-btn" style="background: #FFF; color: #000;" onclick="toggleMathAutoPlay()">
+            <i class="ri-play-circle-fill"></i> <span>Read Table Automatically</span>
+        </button>
+        
+        <button class="close-btn" style="background: var(--kiddy-yellow); color: black;" onclick="closeArea()">DONE</button>
+    </div>
+
+    <script>
+        let currentTable = 2;
+        let isAutoReading = false;
+        let isMathPlaying = false;
+        let currentMathIndex = 1;
+        let autoReadIndex = 0;
+
+        // Force browser to unlock audio engines instantly on start
+        window.addEventListener('DOMContentLoaded', () => {
+            if (window.speechSynthesis) {
+                window.speechSynthesis.cancel();
+            }
+        });
+
+        function showArea(areaId) {
+            stopAllAudio();
+            document.getElementById('main-grid').style.display = 'none';
+            document.querySelectorAll('.play-area').forEach(a => a.classList.remove('active'));
+            document.getElementById(areaId).classList.add('active');
+
+            if(areaId === 'alphabet') loadGrid('alpha-box', "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split(''));
+            if(areaId === 'numbers') loadGrid('num-box', Array.from({length: 20}, (_, i) => i + 1));
+            if(areaId === 'math') {
+                currentMathIndex = 1;
+                loadMath();
+            }
+        }
+
+        function closeArea() {
+            stopAllAudio();
+            document.querySelectorAll('.play-area').forEach(a => a.classList.remove('active'));
+            document.getElementById('main-grid').style.display = 'grid';
+            document.getElementById('rhyme-player').src = ""; 
+        }
+
+        function stopAllAudio() {
+            if (window.speechSynthesis) {
+                window.speechSynthesis.cancel();
+            }
+            isAutoReading = false;
+            isMathPlaying = false;
+            
+            const mathBtn = document.getElementById('btn-audio-math');
+            if(mathBtn) mathBtn.innerHTML = `<i class="ri-play-circle-fill"></i> <span>Read Table Automatically</span>`;
+            
+            document.getElementById('btn-audio-alphabet').innerHTML = `<i class="ri-volume-up-fill"></i> <span>Read All Automatically</span>`;
+            document.getElementById('btn-audio-numbers').innerHTML = `<i class="ri-volume-up-fill"></i> <span>Read All Automatically</span>`;
+            
+            clearAllHighlights();
+        }
+
+        function clearAllHighlights() {
+            document.querySelectorAll('.grid-item, .math-row').forEach(el => {
+                el.classList.remove('speaking-highlight');
+                el.style.color = '';
+            });
+        }
+
+        function loadGrid(target, items) {
+            const box = document.getElementById(target);
+            box.innerHTML = '';
+            items.forEach((item, index) => {
+                const div = document.createElement('div');
+                div.className = 'grid-item';
+                div.id = `${target}-${index}`;
+                div.innerText = item;
+                div.onclick = () => {
+                    stopAllAudio();
+                    speakSingleItem(div, item.toString());
+                };
+                box.appendChild(div);
+            });
+        }
+
+        function speakSingleItem(element, text) {
+            window.speechSynthesis.cancel();
+            clearAllHighlights();
+            
+            element.classList.add('speaking-highlight');
+            if(element.parentElement.id === 'alpha-box') element.style.color = 'var(--kiddy-pink)';
+            if(element.parentElement.id === 'num-box') element.style.color = 'var(--kiddy-blue)';
+
+            let utterance = new SpeechSynthesisUtterance(text);
+            utterance.rate = 0.9;
+            utterance.onend = () => {
+                element.classList.remove('speaking-highlight');
+                element.style.color = '';
+            };
+            window.speechSynthesis.speak(utterance);
+        }
+
+        function toggleAutoRead(type) {
+            if (isAutoReading) {
+                stopAllAudio();
+                return;
+            }
+
+            stopAllAudio();
+            isAutoReading = true;
+            
+            const btn = document.getElementById(`btn-audio-${type}`);
+            btn.innerHTML = `<i class="ri-stop-circle-fill"></i> <span>Stop Audio</span>`;
+            
+            const boxId = type === 'alphabet' ? 'alpha-box' : 'num-box';
+            const itemsCount = boxId === 'alpha-box' ? 26 : 20;
+            autoReadIndex = 0;
+
+            function playNext() {
+                if (!isAutoReading) return;
+                if (autoReadIndex >= itemsCount) {
+                    stopAllAudio();
+                    return;
+                }
+                
+                clearAllHighlights();
+                const element = document.getElementById(`${boxId}-${autoReadIndex}`);
+                if(!element) return;
+
+                element.classList.add('speaking-highlight');
+                if(type === 'alphabet') element.style.color = 'var(--kiddy-pink)';
+                if(type === 'numbers') element.style.color = 'var(--kiddy-blue)';
+
+                let text = element.innerText;
+                let utterance = new SpeechSynthesisUtterance(text);
+                utterance.rate = 0.85;
+                
+                utterance.onend = () => {
+                    element.classList.remove('speaking-highlight');
+                    element.style.color = '';
+                    if (isAutoReading) {
+                        autoReadIndex++;
+                        playNext();
+                    }
+                };
+                window.speechSynthesis.speak(utterance);
+            }
+            playNext();
+        }
+
+        function loadMath() {
+            document.getElementById('table-title').innerText = `Table ${currentTable}`;
+            const box = document.getElementById('math-box');
+            box.innerHTML = '';
+            for(let i = 1; i <= 12; i++) {
+                box.innerHTML += `
+                    <div class="math-row" id="math-row-${i}">
+                        <span>${currentTable} <span style="color:var(--kiddy-pink); font-size:1rem; margin:0 4px;">x</span> ${i}</span> 
+                        <span style="margin:0 10px; color:rgba(255,255,255,0.4);">=</span> 
+                        <span style="color:var(--kiddy-yellow)">${currentTable * i}</span>
+                    </div>`;
+            }
+        }
+
+        function changeTable(dir) {
+            let wasPlaying = isMathPlaying;
+            stopAllAudio();
+            currentTable += dir;
+            if(currentTable < 2) currentTable = 12;
+            if(currentTable > 12) currentTable = 2;
+            currentMathIndex = 1;
+            loadMath();
+            
+            if(wasPlaying) {
+                setTimeout(() => { toggleMathAutoPlay(); }, 150);
+            }
+        }
+
+        function toggleMathAutoPlay() {
+            if(isMathPlaying) {
+                stopAllAudio();
+                return;
+            }
+
+            stopAllAudio();
+            isMathPlaying = true;
+            const mathBtn = document.getElementById('btn-audio-math');
+            mathBtn.innerHTML = `<i class="ri-stop-circle-fill"></i> <span>Stop Presentation</span>`;
+            playMathSequence();
+        }
+
+        function playMathSequence() {
+            if(!isMathPlaying) return;
+
+            if(currentMathIndex > 12) {
+                currentTable++;
+                if(currentTable > 12) currentTable = 2; 
+                currentMathIndex = 1;
+                loadMath();
+                setTimeout(() => { playMathSequence(); }, 600);
+                return;
+            }
+
+            clearAllHighlights();
+            const activeRow = document.getElementById(`math-row-${currentMathIndex}`);
+            if(activeRow) {
+                activeRow.classList.add('speaking-highlight');
+                activeRow.style.color = 'var(--kiddy-purple)';
+            }
+
+            let speechString = `${currentTable} times ${currentMathIndex} equals ${currentTable * currentMathIndex}`;
+            let utterance = new SpeechSynthesisUtterance(speechString);
+            utterance.rate = 0.85;
+
+            utterance.onend = () => {
+                if(activeRow) {
+                    activeRow.classList.remove('speaking-highlight');
+                    activeRow.style.color = '';
+                }
+                if (isMathPlaying) {
+                    currentMathIndex++;
+                    playMathSequence();
+                }
+            };
+
+            window.speechSynthesis.speak(utterance);
+        }
+
+        function changeRhyme(id) {
+            document.getElementById('rhyme-player').src = `https://www.youtube.com/embed/${id}?autoplay=1`;
+        }
+    </script>
+</body>
+</html>

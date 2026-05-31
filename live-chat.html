@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Support | DE-WISE Hub</title>
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #00E5FF;
+            --bg: #02050E;
+            --surface: #0B1224;
+            --border: rgba(255, 255, 255, 0.1);
+            --text: #F8FAFC;
+            --whatsapp: #25D366;
+        }
+
+        * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+        }
+
+        body { 
+            background: var(--bg); 
+            color: var(--text); 
+            height: 100vh; 
+            display: flex; 
+            flex-direction: column; 
+            overflow: hidden;
+        }
+
+        /* --- CHAT HEADER --- */
+        header {
+            padding: 15px 20px;
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            z-index: 10;
+        }
+        
+        .back-btn { 
+            color: white; 
+            font-size: 1.5rem; 
+            text-decoration: none; 
+            transition: color 0.2s;
+        }
+        
+        .back-btn:hover {
+            color: var(--primary);
+        }
+
+        .avatar {
+            width: 45px; 
+            height: 45px; 
+            border-radius: 50%; 
+            border: 2px solid var(--primary);
+            object-fit: cover;
+        }
+
+        .prof-status { 
+            display: flex; 
+            flex-direction: column; 
+            gap: 2px;
+        }
+        
+        .prof-name { 
+            font-weight: 600; 
+            font-size: 1rem; 
+            letter-spacing: 0.3px;
+        }
+        
+        .status-tag { 
+            font-size: 0.75rem; 
+            color: #00E676; 
+            display: flex; 
+            align-items: center; 
+            gap: 4px; 
+        }
+
+        /* --- MESSAGES AREA --- */
+        #chat-flow {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            scroll-behavior: smooth;
+        }
+
+        /* Custom Scrollbar for modern feel */
+        #chat-flow::-webkit-scrollbar {
+            width: 6px;
+        }
+        #chat-flow::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+
+        .msg { 
+            max-width: 80%; 
+            padding: 12px 16px; 
+            border-radius: 18px; 
+            font-size: 0.92rem; 
+            line-height: 1.45; 
+            position: relative; 
+            word-wrap: break-word;
+            animation: fadeIn 0.3s ease-out forwards;
+        }
+        
+        .msg-user { 
+            align-self: flex-end; 
+            background: var(--primary); 
+            color: #02050E; 
+            border-bottom-right-radius: 4px; 
+            font-weight: 500;
+        }
+        
+        .msg-prof { 
+            align-self: flex-start; 
+            background: var(--surface); 
+            border: 1px solid var(--border); 
+            border-bottom-left-radius: 4px; 
+        }
+        
+        .msg-time { 
+            font-size: 0.65rem; 
+            opacity: 0.6; 
+            margin-top: 6px; 
+            display: block; 
+            text-align: right; 
+        }
+        
+        .msg-user .msg-time {
+            color: rgba(0, 0, 0, 0.6);
+        }
+
+        /* --- WHATSAPP REDIRECT CARD --- */
+        .wa-card-container {
+            align-self: flex-start;
+            animation: fadeIn 0.4s ease-out forwards;
+            margin-top: -5px;
+            margin-bottom: 5px;
+        }
+
+        .wa-btn {
+            background: var(--whatsapp); 
+            color: white; 
+            padding: 12px 22px; 
+            border-radius: 25px; 
+            text-decoration: none; 
+            display: inline-flex; 
+            align-items: center;
+            gap: 8px;
+            font-weight: 600; 
+            font-size: 0.85rem;
+            box-shadow: 0 4px 15px rgba(37, 211, 102, 0.2);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .wa-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(37, 211, 102, 0.4);
+        }
+
+        /* --- INPUT AREA --- */
+        .chat-input-area {
+            padding: 15px 20px;
+            background: var(--surface);
+            border-top: 1px solid var(--border);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .attach-btn {
+            background: none; 
+            border: none; 
+            color: var(--primary); 
+            font-size: 1.5rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            transition: opacity 0.2s;
+        }
+
+        .attach-btn:hover {
+            opacity: 0.8;
+        }
+
+        .input-wrapper {
+            flex: 1;
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        input {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border);
+            padding: 14px 20px;
+            border-radius: 25px;
+            color: white;
+            outline: none;
+            font-size: 0.95rem;
+            transition: border-color 0.2s, background 0.2s;
+        }
+
+        input:focus {
+            border-color: var(--primary);
+            background: rgba(255, 255, 255, 0.07);
+        }
+
+        .send-btn {
+            background: var(--primary);
+            width: 48px; 
+            height: 48px;
+            border-radius: 50%;
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+            border: none; 
+            cursor: pointer; 
+            color: #02050E; 
+            font-size: 1.3rem;
+            flex-shrink: 0;
+            transition: transform 0.2s, background 0.2s;
+        }
+
+        .send-btn:hover {
+            transform: scale(1.05);
+            background: #00b8cc;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <a href="index.html" class="back-btn" aria-label="Go back"><i class="ri-arrow-left-line"></i></a>
+        <img src="De-Wise-Logo.jpg" onerror="this.src='https://via.placeholder.com/45'" class="avatar" alt="Prof. Joseph">
+        <div class="prof-status">
+            <span class="prof-name">Prof. Bodunrinde Joseph</span>
+            <span class="status-tag"><i class="ri-checkbox-circle-fill"></i> Always active for you</span>
+        </div>
+    </header>
+
+    <div id="chat-flow">
+        <div class="msg msg-prof">
+            Hello Scholar! Welcome to the DE-WISE Hub. How can I assist your learning journey today?
+            <span class="msg-time">9:00 AM</span>
+        </div>
+    </div>
+
+    <div class="chat-input-area">
+        <button class="attach-btn" aria-label="Attach file"><i class="ri-add-circle-line"></i></button>
+        <div class="input-wrapper">
+            <input type="text" id="user-msg" placeholder="Type a message..." autocomplete="off">
+        </div>
+        <button class="send-btn" id="send-trigger" aria-label="Send message"><i class="ri-send-plane-2-fill"></i></button>
+    </div>
+
+    <script>
+        const chatFlow = document.getElementById('chat-flow');
+        const userInput = document.getElementById('user-msg');
+        const sendBtn = document.getElementById('send-trigger');
+        const myWhatsApp = "2349133588595"; 
+
+        // Event listeners for sending message
+        sendBtn.addEventListener('click', sendMessage);
+        userInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+
+        function sendMessage() {
+            const text = userInput.value.trim();
+            if (!text) return;
+
+            // 1. Show user message
+            appendMessage(text, 'user');
+            userInput.value = '';
+
+            // 2. Automated Professional Response
+            setTimeout(() => {
+                const reply = "I have received your message, Scholar! To get a direct response from me and join our private mentorship group, please click the button below to continue on WhatsApp.";
+                appendMessage(reply, 'prof');
+                
+                // 3. Generate WhatsApp Link
+                const encodedMsg = encodeURIComponent(`Hello Prof. Joseph, I am a student from the DE-WISE Hub. I have a question: ${text}`);
+                const waLink = `https://wa.me/${myWhatsApp}?text=${encodedMsg}`;
+
+                // 4. Show custom styled WhatsApp Button
+                const btnDiv = document.createElement('div');
+                btnDiv.className = 'wa-card-container';
+                btnDiv.innerHTML = `
+                    <a href="${waLink}" target="_blank" class="wa-btn">
+                        <i class="ri-whatsapp-line"></i> Chat on WhatsApp
+                    </a>
+                `;
+                chatFlow.appendChild(btnDiv);
+                scrollToBottom();
+            }, 1000);
+        }
+
+        function appendMessage(text, type) {
+            const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            const msgDiv = document.createElement('div');
+            msgDiv.className = `msg msg-${type}`;
+            msgDiv.innerHTML = `${text} <span class="msg-time">${time}</span>`;
+            chatFlow.appendChild(msgDiv);
+            scrollToBottom();
+        }
+
+        function scrollToBottom() {
+            chatFlow.scrollTop = chatFlow.scrollHeight;
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile Hub | DE-WISE Learning Hub</title>
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+    <!-- Included HTML2PDF dependencies for local document rendering -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        :root {
+            --primary: #00E5FF;
+            --primary-dark: #00BCCC;
+            --accent: #FFD700;
+            --bg: #0A1128;
+            --surface: #132247;
+            --card-bg: #1C3166;
+            --border: rgba(255, 255, 255, 0.12);
+            --text: #F1F5F9;
+            --text-dim: #94A3B8;
+            --hdr-gradient: linear-gradient(135deg, #0A1931, #15305B);
+        }
+
+        .light-mode {
+            --bg: #F8FAFC;
+            --surface: #FFFFFF;
+            --card-bg: #F1F5F9;
+            --border: #E2E8F0;
+            --text: #0F172A;
+            --text-dim: #64748B;
+            --hdr-gradient: linear-gradient(135deg, #1E3A8A, #3B82F6);
+        }
+
+        * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+            font-family: 'Segoe UI', Roboto, sans-serif; 
+            transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease; 
+        }
+        
+        body { 
+            background: var(--bg); 
+            color: var(--text); 
+            padding-bottom: 140px; 
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* --- AUTH SCREEN (GUEST VIEW) --- */
+        #auth-overlay {
+            position: fixed;
+            inset: 0;
+            background: var(--bg);
+            z-index: 5000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            opacity: 1;
+            transition: opacity 0.4s ease;
+        }
+        .auth-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            padding: 40px 30px;
+            border-radius: 24px;
+            width: 100%;
+            max-width: 420px;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            animation: cardPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .auth-logo {
+            width: 80px; height: 80px; border-radius: 50%; border: 2px solid var(--primary); margin: 0 auto 20px;
+            box-shadow: 0 0 15px rgba(0, 229, 255, 0.2);
+        }
+        .auth-card h2 { margin-bottom: 10px; font-size: 1.6rem; font-weight: 700; }
+        .auth-card p { font-size: 0.9rem; color: var(--text-dim); margin-bottom: 25px; }
+        .auth-input {
+            width: 100%; padding: 14px 20px; border-radius: 30px; border: 1px solid var(--border);
+            background: rgba(255,255,255,0.05); color: var(--text); outline: none; margin-bottom: 20px; text-align: center; font-size: 1rem;
+        }
+        .auth-input:focus { border-color: var(--primary); background: rgba(255,255,255,0.08); }
+        .auth-btn {
+            width: 100%; padding: 14px; border-radius: 30px; border: none; background: var(--primary); color: #0A1128; font-weight: bold; cursor: pointer; font-size: 1rem; transition: transform 0.2s, background 0.2s;
+        }
+        .auth-btn:hover { transform: translateY(-2px); background: var(--primary-dark); }
+
+        /* --- TOP BAR --- */
+        .top-bar { position: absolute; top: 25px; left: 25px; z-index: 10; }
+        .back-btn {
+            background: rgba(255,255,255,0.15); width: 44px; height: 44px;
+            display: flex; align-items: center; justify-content: center;
+            border-radius: 50%; color: white; text-decoration: none;
+            backdrop-filter: blur(10px); border: 1px solid var(--border);
+            transition: transform 0.2s, color 0.2s;
+        }
+        .back-btn:hover { transform: scale(1.05); color: var(--primary); }
+
+        header {
+            padding: 70px 25px 55px;
+            background: var(--hdr-gradient);
+            border-bottom: 1px solid var(--border);
+            text-align: center;
+            position: relative;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
+        .profile-pic-container {
+            width: 120px; height: 120px; margin: 0 auto 20px;
+            border-radius: 50%; border: 3px solid var(--primary);
+            padding: 6px; background: var(--bg);
+            box-shadow: 0 0 20px rgba(0, 229, 255, 0.3);
+            animation: pulseGlow 3s infinite;
+        }
+        .profile-pic { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
+        .user-name { font-size: 1.8rem; font-weight: 700; color: #FFFFFF; text-shadow: 0 2px 8px rgba(0,0,0,0.4); margin-bottom: 4px; }
+        .user-role { color: var(--accent); font-size: 0.85rem; letter-spacing: 2px; font-weight: 800; text-transform: uppercase; }
+
+        /* --- MISSION CONTAINER --- */
+        .mission-box {
+            margin: -25px 25px 30px; padding: 30px;
+            background: var(--surface); backdrop-filter: blur(15px);
+            border-radius: 24px; border: 1px solid var(--border);
+            box-shadow: 0 12px 35px rgba(0,0,0,0.2);
+            animation: slideUp 0.6s ease-out;
+        }
+        .mission-box h3 { color: var(--primary); font-size: 1.15rem; margin-bottom: 12px; display: flex; align-items: center; gap: 10px; }
+        .mission-box p { font-size: 0.95rem; line-height: 1.7; color: var(--text-dim); text-align: justify; }
+        .dev-credit { margin-top: 18px; font-size: 0.82rem; color: var(--accent); font-weight: bold; display: block;}
+
+        /* --- MENU & INTERACTIVE MANAGERS --- */
+        .menu-container { padding: 0 25px; display: flex; flex-direction: column; gap: 16px; }
+        
+        /* Interactive Inputs Panel */
+        .management-card {
+            background: var(--surface); border-radius: 24px; border: 1px solid var(--border); padding: 25px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+        .management-card h3 { font-size: 1.1rem; margin-bottom: 15px; color: var(--primary); display: flex; align-items: center; gap: 8px; }
+        .input-group { display: flex; flex-direction: column; gap: 12px; }
+        .input-wrapper { display: flex; flex-direction: column; gap: 6px; }
+        .input-wrapper label { font-size: 0.82rem; font-weight: 600; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.5px; }
+        .interactive-input {
+            width: 100%; padding: 12px 18px; border-radius: 12px; border: 1px solid var(--border);
+            background: rgba(0,0,0,0.15); color: var(--text); font-size: 0.95rem; outline: none;
+        }
+        .interactive-input:focus { border-color: var(--primary); background: rgba(0,0,0,0.25); }
+
+        .menu-item {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 20px 24px; background: var(--surface); border-radius: 20px;
+            border: 1px solid var(--border); cursor: pointer;
+            transform: translateZ(0); transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+        .menu-item:hover { transform: translateY(-2px); border-color: var(--primary); box-shadow: 0 12px 30px rgba(0, 229, 255, 0.1); }
+        .menu-info { display: flex; align-items: center; gap: 18px; }
+        .menu-info i { font-size: 1.5rem; color: var(--primary); }
+        .menu-info span { font-weight: 600; font-size: 1.05rem; }
+        .chevron-icon { color: var(--text-dim); transition: transform 0.3s; }
+
+        /* --- SETTINGS EXPANSION PANEL --- */
+        .settings-dropdown {
+            max-height: 0; overflow: hidden; transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            padding: 0 10px; display: flex; flex-direction: column; gap: 12px;
+        }
+        .settings-dropdown.active { max-height: 500px; padding: 5px 10px 20px; }
+        .settings-card {
+            background: var(--card-bg); border: 1px solid var(--border); padding: 18px; border-radius: 16px;
+            display: flex; align-items: center; justify-content: space-between; font-size: 0.92rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        .settings-card .card-meta { display: flex; flex-direction: column; gap: 4px; }
+        .settings-card .card-meta label { font-weight: bold; }
+        .settings-card .card-meta span { font-size: 0.8rem; color: var(--text-dim); }
+        .action-lbl-btn { background: none; border: none; color: var(--primary); font-weight: bold; cursor: pointer; font-size: 0.9rem; }
+        .notify-badge { background: #FF3B30; color: white; padding: 3px 10px; border-radius: 12px; font-size: 0.8rem; font-weight: bold; }
+
+        /* Modern Custom Toggle Slider */
+        .switch { position: relative; width: 48px; height: 28px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; inset: 0; background: #334155; border-radius: 34px; transition: .3s; }
+        .slider:before { position: absolute; content: ""; height: 22px; width: 22px; left: 3px; bottom: 3px; background: white; border-radius: 50%; transition: .3s; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+        input:checked + .slider { background: var(--primary); }
+        input:checked + .slider:before { transform: translateX(20px); }
+
+        /* --- HIGHLY PROFESSIONAL CERTIFICATE MODAL --- */
+        #cert-modal {
+            position: fixed; inset: 0; background: rgba(2, 5, 14, 0.96);
+            z-index: 2000; display: none; align-items: center; justify-content: center; padding: env(safe-area-inset-top, 20px) 25px;
+            backdrop-filter: blur(15px); opacity: 0; transition: opacity 0.3s ease;
+        }
+        #cert-modal.active { display: flex; opacity: 1; }
+        
+        .modal-wrapper {
+            display: flex; flex-direction: column; gap: 20px; width: 100%; max-width: 840px; align-items: center;
+        }
+
+        .cert-container {
+            width: 100%; background: #FFFFFF; color: #001F3F; 
+            padding: 5% 6%; border: 16px double #001F3F;
+            border-image: repeating-linear-gradient(45deg, #001f3f, #001f3f 12px, #b8860b 12px, #b8860b 24px) 24;
+            position: relative; text-align: center;
+            box-shadow: 0 30px 70px rgba(0, 229, 255, 0.25);
+            display: flex; flex-direction: column; justify-content: space-between;
+            aspect-ratio: 4 / 3;
+            transform: scale(0.9); transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        #cert-modal.active .cert-container { transform: scale(1); }
+
+        .cert-header { font-family: 'Times New Roman', serif; font-size: min(2.5rem, 5.8vw); font-weight: 800; color: #001F3F; letter-spacing: 2px; line-height: 1.2; margin-bottom: 2vh; }
+        .cert-body { display: flex; flex-direction: column; gap: 2.2vh; justify-content: center; flex-grow: 1; }
+        .cert-body p { font-size: min(1.15rem, 2.8vw); color: #475569; font-style: italic; line-height: 1.5; }
+        .cert-name { font-size: min(3rem, 7vw); font-family: 'Brush Script MT', cursive, sans-serif; color: #b8860b; padding: 4px 20px; margin: 1vh auto; border-bottom: 2px dashed #CBD5E1; min-width: 65%; max-width: 95%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .cert-course { font-size: min(1.8rem, 4.8vw); font-family: 'Times New Roman', serif; font-weight: bold; color: #001F3F; text-transform: uppercase; margin: 1vh auto; letter-spacing: 1px; }
+        .cert-body h3 { font-size: min(1.35rem, 3.4vw); font-weight: 700; color: #001F3F; letter-spacing: 0.8px; margin-top: 0.5vh; }
+        .cert-body .prof-lbl { font-size: min(0.95rem, 2.5vw); font-weight: 600; color: #0F172A; font-style: normal; margin-top: 1vh; max-width: 85%; margin-left: auto; margin-right: auto; line-height: 1.4; }
+
+        .cert-footer { display: flex; justify-content: space-between; align-items: flex-end; margin-top: 4vh; padding: 0 15px; }
+        .cert-id { font-size: min(0.85rem, 2.2vw); color: #64748B; font-family: monospace; text-align: left; line-height: 1.6; letter-spacing: 0.5px; }
+        .signature-area { text-align: center; display: flex; flex-direction: column; align-items: center; margin-right: 10px; }
+        .signature-svg { width: min(120px, 18vw); height: auto; margin-bottom: 4px; }
+        .sign-line { border-top: 1px solid #001F3F; width: min(190px, 28vw); padding-top: 8px; font-size: min(0.85rem, 2.4vw); font-weight: bold; line-height: 1.4; color: #001F3F; letter-spacing: 0.3px; }
+
+        /* Control Utilities inside Overlay Container */
+        .close-cert-btn {
+            position: absolute; top: -50px; right: 0; background: none; border: none; color: #FFFFFF; font-size: 2rem; cursor: pointer; transition: transform 0.2s;
+        }
+        .close-cert-btn:hover { transform: scale(1.1); color: var(--primary); }
+
+        .download-action-btn {
+            background: var(--primary); color: #02050E; font-weight: bold; border: none; padding: 14px 35px; border-radius: 30px; cursor: pointer; display: flex; align-items: center; gap: 10px; font-size: 1rem; box-shadow: 0 4px 15px rgba(0, 229, 255, 0.3); transition: transform 0.2s;
+        }
+        .download-action-btn:hover { transform: translateY(-2px); background: var(--primary-dark); }
+
+        /* --- FOOTER NAVIGATION --- */
+        nav { position: fixed; bottom: 25px; left: 50%; transform: translateX(-50%); width: 92%; max-width: 500px; height: 76px; background: rgba(19, 34, 71, 0.85); backdrop-filter: blur(20px); border-radius: 38px; border: 1px solid var(--border); display: flex; justify-content: space-around; align-items: center; z-index: 1000; box-shadow: 0 12px 35px rgba(0,0,0,0.4); }
+        .nav-item { color: var(--text-dim); text-align: center; font-size: 0.75rem; cursor: pointer; text-decoration: none; display: flex; flex-direction: column; align-items: center; gap: 5px; font-weight: 600; }
+        .nav-item i { font-size: 1.4rem; transition: transform 0.2s; }
+        .nav-item:hover i { transform: translateY(-2px); }
+        .nav-item.active { color: var(--primary); }
+
+        /* --- SCREEN ORIENTATION OPTIMIZATIONS --- */
+        @media (max-height: 480px) and (orientation: landscape) {
+            body { padding-bottom: 100px; }
+            header { padding: 35px 20px 30px; display: flex; align-items: center; justify-content: center; gap: 25px; text-align: left; }
+            .profile-pic-container { margin: 0; width: 80px; height: 80px; }
+            .mission-box { margin-top: 20px; }
+            .cert-container { border-width: 8px; padding: 3% 5%; }
+            .cert-body p { font-size: min(1rem, 2.6vw); }
+            .cert-name { font-size: min(2rem, 5.5vw); margin: 0.5vh auto; }
+            .cert-course { font-size: min(1.4rem, 4.2vw); margin: 0.5vh auto; }
+            .signature-svg { width: 85px; }
+            .close-cert-btn { top: 5px; right: 20px; color: #001F3F; font-size: 1.8rem; }
+            nav { height: 64px; bottom: 12px; }
+        }
+
+        /* --- ANIMATIONS --- */
+        @keyframes pulseGlow {
+            0% { box-shadow: 0 0 0 0 rgba(0, 229, 255, 0.4); }
+            70% { box-shadow: 0 0 0 14px rgba(0, 229, 255, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(0, 229, 255, 0); }
+        }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(25px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes cardPop {
+            from { opacity: 0; transform: scale(0.92) translateY(15px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- STATE CONTROL: DYNAMIC PORTAL AUTHENTICATION OVERLAY -->
+    <div id="auth-overlay">
+        <div class="auth-card">
+            <img src="De-Wise-Logo.jpg" class="auth-logo" alt="Hub Logo" onerror="this.src='https://via.placeholder.com/80'">
+            <h2>DE-WISE Hub Login</h2>
+            <p>Please log in using your student verification token name.</p>
+            <input type="text" id="auth-username-field" class="auth-input" placeholder="Enter registration name..." onkeypress="if(event.key==='Enter') executeLogin()">
+            <button class="auth-btn" onclick="executeLogin()">Verify & Synchronize</button>
+        </div>
+    </div>
+
+    <div class="top-bar">
+        <a href="index.html" class="back-btn"><i class="ri-arrow-left-line"></i></a>
+    </div>
+
+    <header>
+        <div class="profile-pic-container">
+            <img src="De-Wise-Logo.jpg" class="profile-pic" alt="User Profile" onerror="this.src='https://via.placeholder.com/120'">
+        </div>
+        <h1 class="user-name" id="user-display">Scholar Profile</h1>
+        <span class="user-role">DE-WISE LEARNER</span>
+    </header>
+
+    <div class="mission-box">
+        <h3><i class="ri-shield-flash-line"></i> Institutional Vision</h3>
+        <p>
+            Welcome to DE-WISE Learning Hub, proudly developed by <strong>Engr. Prof. Bodunrinde Funsho Joseph</strong> under DE-WISE Learning Field Institute. 
+            Our platform is carefully engineered to eliminate structural learning friction, bridging the absolute gap between foundational academic knowledge and modern, real-world technical skills.
+        </p>
+        <span class="dev-credit">Learn, Build, and Succeed anywhere across the globe.</span>
+    </div>
+
+    <div class="menu-container">
+        <!-- LIVE INTERACTIVE CERTIFICATE DATA MANAGEMENT CARD -->
+        <div class="management-card">
+            <h3><i class="ri-edit-box-line"></i> Certificate Credential Manager</h3>
+            <div class="input-group">
+                <div class="input-wrapper">
+                    <label for="live-cert-name">Full Name on Certificate</label>
+                    <input type="text" id="live-cert-name" class="interactive-input" placeholder="Type full name..." oninput="updateLiveCertificate()">
+                </div>
+                <div class="input-wrapper">
+                    <label for="live-cert-course">Course / Field of Study</label>
+                    <input type="text" id="live-cert-course" class="interactive-input" placeholder="e.g., Graphics Design, Web Development..." oninput="updateLiveCertificate()">
+                </div>
+            </div>
+        </div>
+
+        <!-- Certificate Trigger -->
+        <div class="menu-item" onclick="toggleCertificateModal(true)">
+            <div class="menu-info">
+                <i class="ri-medal-line"></i>
+                <span>Preview & Download Certificate</span>
+            </div>
+            <i class="ri-arrow-right-s-line chevron-icon"></i>
+        </div>
+
+        <!-- Tangle Interactive Settings Menu -->
+        <div class="menu-item" onclick="toggleSettingsPanel()">
+            <div class="menu-info">
+                <i class="ri-settings-4-line"></i>
+                <span>Hub Settings</span>
+            </div>
+            <i class="ri-arrow-down-s-line chevron-icon" id="settings-chevron"></i>
+        </div>
+        
+        <!-- Nested Settings Drawer Container -->
+        <div id="settings-drawer" class="settings-dropdown">
+            <div class="settings-card">
+                <div class="card-meta">
+                    <label>Account Sync Status</label>
+                    <span id="account-status-id">Connected as Guest</span>
+                </div>
+                <i class="ri-checkbox-circle-fill" style="color: var(--primary);"></i>
+            </div>
+            <div class="settings-card">
+                <div class="card-meta">
+                    <label>Admin Broadcasts</label>
+                    <span>System notifications wait queue</span>
+                </div>
+                <span class="notify-badge" id="admin-notify-counter">3</span>
+            </div>
+            <div class="settings-card">
+                <div class="card-meta">
+                    <label>Terminal Workspace Cache</label>
+                    <span>Clear saved session preferences</span>
+                </div>
+                <button class="action-lbl-btn" onclick="clearCachedMemory()">Purge</button>
+            </div>
+        </div>
+
+        <!-- System Theme Controller -->
+        <div class="menu-item">
+            <div class="menu-info">
+                <i class="ri-moon-clear-line" id="theme-icon-indicator"></i>
+                <span>Dark Mode Configuration</span>
+            </div>
+            <label class="switch">
+                <input type="checkbox" id="theme-toggle-switch" onchange="processThemeFlip()">
+                <span class="slider"></span>
+            </label>
+        </div>
+
+        <!-- Session Separation Controller -->
+        <div class="menu-item logout-btn" onclick="executeSessionLogout()">
+            <div class="menu-info">
+                <i class="ri-logout-box-r-line"></i>
+                <span>Terminate User Session</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- RESPONSIVE AUTO-SCALING CERTIFICATE ENGINE LAYER -->
+    <div id="cert-modal" onclick="if(event.target === this) toggleCertificateModal(false)">
+        <div class="modal-wrapper">
+            <div class="cert-container" id="printable-certificate-card">
+                <button class="close-cert-btn" onclick="toggleCertificateModal(false)" aria-label="Close Certificate"><i class="ri-close-circle-fill"></i></button>
+                <h1 class="cert-header">CERTIFICATE OF COMPLETION</h1>
+                <div class="cert-body">
+                    <p>This validation token proudly certifies that</p>
+                    <h2 class="cert-name" id="cert-user-name">Scholar Name</h2>
+                    <p>has metrics matching perfect criteria to successfully graduate the professional course track in</p>
+                    <h2 class="cert-course" id="cert-course-name">Advanced Technical Engineering</h2>
+                    <p>at</p>
+                    <h3>DE-WISE LEARNING FIELD INSTITUTE</h3>
+                    <p class="prof-lbl">Demonstrating Global Proficiency in Academic Excellence & Advanced Technical Engineering.</p>
+                </div>
+                <div class="cert-footer">
+                    <div class="cert-id">VERIFICATION ID:<br><span id="dynamic-uuid">DW-8492-X9</span></div>
+                    <div class="signature-area">
+                        <!-- Precise Vector Vectorization of Signature Asset from 43091.png -->
+                        <svg class="signature-svg" viewBox="0 0 150 150" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M72,61 C57,60 46,75 48,93 C50,109 68,114 74,96 C81,77 75,61 68,61 C57,61 54,99 55,108 C56,114 43,115 47,125 C51,135 59,109 67,109 C77,109 72,118 80,113 C86,110 81,105 87,105 C96,105 91,114 102,111 C107,110 102,106 111,106 C117,106 122,112 126,109" 
+                                  fill="none" stroke="#001F3F" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M52,109 C38,109 63,118 73,101 C84,84 89,70 89,66 C88,57 77,74 72,93 C67,112 79,114 84,101 C88,91 87,70 84,66" 
+                                  fill="none" stroke="#001F3F" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                       <div class="sign-line">Engr. Prof. Bodunrinde Joseph<br>Institute Director</div>
+                    </div>
+                </div>
+            </div>
+            <!-- Dynamic runtime compilation downloader trigger -->
+            <button class="download-action-btn" onclick="generatePdfDocument()"><i class="ri-download-cloud-2-line"></i> Download PDF Certificate</button>
+        </div>
+    </div>
+
+    <nav>
+        <a href="index.html" class="nav-item"><i class="ri-home-line"></i>Home</a>
+        <a href="Mini Games.html" class="nav-item"><i class="ri-game-line"></i>Games</a>
+        <div class="nav-item active"><i class="ri-user-fill"></i>Profile</div>
+    </nav>
+    <script>
+        window.onload = function() {
+            evaluateSessionState();
+        };
+
+        function evaluateSessionState() {
+            const currentActiveUser = localStorage.getItem('dw_user_current');
+            const authOverlay = document.getElementById('auth-overlay');
+
+            if (!currentActiveUser) {
+                authOverlay.style.display = 'flex';
+                authOverlay.style.opacity = '1';
+                document.body.style.overflow = 'hidden';
+            } else {
+                authOverlay.style.opacity = '0';
+                setTimeout(() => { authOverlay.style.display = 'none'; }, 400);
+                document.body.style.overflow = 'auto';
+
+                document.getElementById('user-display').innerText = currentActiveUser;
+                document.getElementById('account-status-id').innerText = `Active: ${currentActiveUser}`;
+
+                // Populate fields with stored info or defaults
+                const storedCertName = localStorage.getItem('dw_cert_name') || currentActiveUser;
+                const storedCertCourse = localStorage.getItem('dw_cert_course') || 'Graphics Design & Web Development';
+
+                document.getElementById('live-cert-name').value = storedCertName;
+                document.getElementById('live-cert-course').value = storedCertCourse;
+                
+                // Force sync directly to the certificate text fields
+                updateLiveCertificate();
+
+                let userTheme = localStorage.getItem('dw_theme_' + currentActiveUser) || 'dark';
+                applySynchronizedTheme(userTheme);
+            }
+        }
+
+        function executeLogin() {
+            const nameInput = document.getElementById('auth-username-field').value.trim();
+            if (!nameInput) {
+                alert("Authorization rejected. Please enter a valid profile name.");
+                return;
+            }
+            
+            localStorage.setItem('dw_user_current', nameInput);
+            if (!localStorage.getItem('dw_theme_' + nameInput)) {
+                localStorage.setItem('dw_theme_' + nameInput, 'dark');
+            }
+            
+            document.getElementById('auth-username-field').value = '';
+            evaluateSessionState();
+        }
+
+        function updateLiveCertificate() {
+            const nameVal = document.getElementById('live-cert-name').value.trim() || 'Scholar Name';
+            const courseVal = document.getElementById('live-cert-course').value.trim() || 'Professional Course Track';
+
+            // Sync with certificate nodes live
+            document.getElementById('cert-user-name').innerText = nameVal;
+            document.getElementById('cert-course-name').innerText = courseVal;
+
+            // Save entries live into local storage tracking memory
+            localStorage.setItem('dw_cert_name', nameVal);
+            localStorage.setItem('dw_cert_course', courseVal);
+
+            // Dynamically compile a deterministic unique validation string based on structural input data parameters
+            const verificationId = generateDeterministicUID(nameVal + courseVal);
+            document.getElementById('dynamic-uuid').innerHTML = `VERIFICATION ID:<br>${verificationId}`;
+        }
+
+        function applySynchronizedTheme(themeStr) {
+            const targetToggle = document.getElementById('theme-toggle-switch');
+            const themeIcon = document.getElementById('theme-icon-indicator');
+            
+            if (themeStr === 'light') {
+                document.body.classList.add('light-mode');
+                targetToggle.checked = false;
+                themeIcon.className = "ri-sun-line";
+            } else {
+                document.body.classList.remove('light-mode');
+                targetToggle.checked = true;
+                themeIcon.className = "ri-moon-clear-line";
+            }
+        }
+
+        function processThemeFlip() {
+            const currentActiveUser = localStorage.getItem('dw_user_current');
+            if (!currentActiveUser) return;
+
+            if (document.body.classList.contains('light-mode')) {
+                document.body.classList.remove('light-mode');
+                localStorage.setItem('dw_theme_' + currentActiveUser, 'dark');
+                applySynchronizedTheme('dark');
+            } else {
+                document.body.classList.add('light-mode');
+                localStorage.setItem('dw_theme_' + currentActiveUser, 'light');
+                applySynchronizedTheme('light');
+            }
+        }
+
+        function toggleSettingsPanel() {
+            const drawer = document.getElementById('settings-drawer');
+            const chevron = document.getElementById('settings-chevron');
+            if (drawer.classList.contains('active')) {
+                drawer.classList.remove('active');
+                chevron.style.transform = 'rotate(0deg)';
+            } else {
+                drawer.classList.add('active');
+                chevron.style.transform = 'rotate(180deg)';
+            }
+        }
+
+        function toggleCertificateModal(forceOpen) {
+            const modal = document.getElementById('cert-modal');
+            if (forceOpen) {
+                modal.style.display = 'flex';
+                setTimeout(() => modal.classList.add('active'), 10);
+            } else {
+                modal.classList.remove('active');
+                setTimeout(() => modal.style.display = 'none', 300);
+            }
+        }
+
+        function clearCachedMemory() {
+            if (confirm("Purge localized user caching systems? Theme and interface parameters will return to defaults.")) {
+                const user = localStorage.getItem('dw_user_current');
+                if (user) localStorage.removeItem('dw_theme_' + user);
+                localStorage.removeItem('dw_cert_name');
+                localStorage.removeItem('dw_cert_course');
+                alert("Cache system reset complete.");
+                evaluateSessionState();
+            }
+        }
+
+        function executeSessionLogout() {
+            if (confirm("Disconnect modern credentials and exit tracking? Another user session can be bound immediately.")) {
+                localStorage.removeItem('dw_user_current');
+                document.getElementById('settings-drawer').classList.remove('active');
+                document.getElementById('settings-chevron').style.transform = 'rotate(0deg)';
+                toggleCertificateModal(false);
+                evaluateSessionState();
+            }
+        }
+
+        function generateDeterministicUID(str) {
+            let hash = 0;
+            for (let i = 0; i < str.length; i++) {
+                hash = str.charCodeAt(i) + ((hash << 5) - hash);
+            }
+            const cleanNum = Math.abs(hash).toString().substring(0, 5);
+            return `DW-${cleanNum}-M${str.length}`;
+        }
+
+        // --- PDF ENGINE METHOD GENERATOR ---
+        function generatePdfDocument() {
+            const element = document.getElementById('printable-certificate-card');
+            const studentName = document.getElementById('live-cert-name').value.trim() || 'Scholar';
+            
+            const closeBtn = element.querySelector('.close-cert-btn');
+            if (closeBtn) closeBtn.style.visibility = 'hidden';
+
+            const configurationOptions = {
+                margin:       0.3,
+                filename:     `DE-WISE_Certificate_${studentName.replace(/\s+/g, '_')}.pdf`,
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2.5, useCORS: true, logging: false },
+                jsPDF:        { unit: 'in', format: 'letter', orientation: 'landscape' }
+            };
+
+            html2pdf().set(configurationOptions).from(element).save().then(() => {
+                if (closeBtn) closeBtn.style.visibility = 'visible';
+            }).catch(err => {
+                console.error("PDF engine failure:", err);
+                if (closeBtn) closeBtn.style.visibility = 'visible';
+            });
+        }
+    </script>
+</body>
+</html>
