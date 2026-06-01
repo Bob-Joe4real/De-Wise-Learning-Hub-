@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Profile Hub | DE-WISE Learning Hub</title>
     <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
-    <!-- Included HTML2PDF dependencies for local document rendering -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
         :root {
@@ -274,7 +273,6 @@
 </head>
 <body>
 
-    <!-- STATE CONTROL: DYNAMIC PORTAL AUTHENTICATION OVERLAY -->
     <div id="auth-overlay">
         <div class="auth-card">
             <img src="De-Wise-Logo.jpg" class="auth-logo" alt="Hub Logo" onerror="this.src='https://via.placeholder.com/80'">
@@ -307,7 +305,6 @@
     </div>
 
     <div class="menu-container">
-        <!-- LIVE INTERACTIVE CERTIFICATE DATA MANAGEMENT CARD -->
         <div class="management-card">
             <h3><i class="ri-edit-box-line"></i> Certificate Credential Manager</h3>
             <div class="input-group">
@@ -322,7 +319,6 @@
             </div>
         </div>
 
-        <!-- Certificate Trigger -->
         <div class="menu-item" onclick="toggleCertificateModal(true)">
             <div class="menu-info">
                 <i class="ri-medal-line"></i>
@@ -331,7 +327,6 @@
             <i class="ri-arrow-right-s-line chevron-icon"></i>
         </div>
 
-        <!-- Tangle Interactive Settings Menu -->
         <div class="menu-item" onclick="toggleSettingsPanel()">
             <div class="menu-info">
                 <i class="ri-settings-4-line"></i>
@@ -340,7 +335,6 @@
             <i class="ri-arrow-down-s-line chevron-icon" id="settings-chevron"></i>
         </div>
         
-        <!-- Nested Settings Drawer Container -->
         <div id="settings-drawer" class="settings-dropdown">
             <div class="settings-card">
                 <div class="card-meta">
@@ -365,7 +359,6 @@
             </div>
         </div>
 
-        <!-- System Theme Controller -->
         <div class="menu-item">
             <div class="menu-info">
                 <i class="ri-moon-clear-line" id="theme-icon-indicator"></i>
@@ -377,7 +370,6 @@
             </label>
         </div>
 
-        <!-- Session Separation Controller -->
         <div class="menu-item logout-btn" onclick="executeSessionLogout()">
             <div class="menu-info">
                 <i class="ri-logout-box-r-line"></i>
@@ -386,7 +378,6 @@
         </div>
     </div>
 
-    <!-- RESPONSIVE AUTO-SCALING CERTIFICATE ENGINE LAYER -->
     <div id="cert-modal" onclick="if(event.target === this) toggleCertificateModal(false)">
         <div class="modal-wrapper">
             <div class="cert-container" id="printable-certificate-card">
@@ -404,7 +395,6 @@
                 <div class="cert-footer">
                     <div class="cert-id">VERIFICATION ID:<br><span id="dynamic-uuid">DW-8492-X9</span></div>
                     <div class="signature-area">
-                        <!-- Precise Vector Vectorization of Signature Asset from 43091.png -->
                         <svg class="signature-svg" viewBox="0 0 150 150" xmlns="http://www.w3.org/2000/svg">
                             <path d="M72,61 C57,60 46,75 48,93 C50,109 68,114 74,96 C81,77 75,61 68,61 C57,61 54,99 55,108 C56,114 43,115 47,125 C51,135 59,109 67,109 C77,109 72,118 80,113 C86,110 81,105 87,105 C96,105 91,114 102,111 C107,110 102,106 111,106 C117,106 122,112 126,109" 
                                   fill="none" stroke="#001F3F" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -415,23 +405,22 @@
                     </div>
                 </div>
             </div>
-            <!-- Dynamic runtime compilation downloader trigger -->
             <button class="download-action-btn" onclick="generatePdfDocument()"><i class="ri-download-cloud-2-line"></i> Download PDF Certificate</button>
         </div>
     </div>
 
     <nav>
         <a href="index.html" class="nav-item"><i class="ri-home-line"></i>Home</a>
-        <a href="Mini Games.html" class="nav-item"><i class="ri-game-line"></i>Games</a>
-        <a href="profile.html" class="nav-item"><i class="ri-user-fill"></i>Profile</a>
-                    </nav>
-                    <script>
+        <a href="game.html" class="nav-item"><i class="ri-game-line"></i>Games</a>
+        <a href="profile.html" class="nav-item active"><i class="ri-user-fill"></i>Profile</a>
+    </nav>
+    <script>
         window.onload = function() {
             evaluateSessionState();
         };
 
         function evaluateSessionState() {
-            const currentActiveUser = localStorage.getItem('dw_user_current');
+            const currentActiveUser = localStorage.getItem('dw_user_current') || localStorage.getItem('dw_user_session');
             const authOverlay = document.getElementById('auth-overlay');
 
             if (!currentActiveUser) {
@@ -446,14 +435,12 @@
                 document.getElementById('user-display').innerText = currentActiveUser;
                 document.getElementById('account-status-id').innerText = `Active: ${currentActiveUser}`;
 
-                // Populate fields with stored info or defaults
                 const storedCertName = localStorage.getItem('dw_cert_name') || currentActiveUser;
                 const storedCertCourse = localStorage.getItem('dw_cert_course') || 'Graphics Design & Web Development';
 
                 document.getElementById('live-cert-name').value = storedCertName;
                 document.getElementById('live-cert-course').value = storedCertCourse;
                 
-                // Force sync directly to the certificate text fields
                 updateLiveCertificate();
 
                 let userTheme = localStorage.getItem('dw_theme_' + currentActiveUser) || 'dark';
@@ -469,6 +456,7 @@
             }
             
             localStorage.setItem('dw_user_current', nameInput);
+            localStorage.setItem('dw_user_session', nameInput);
             if (!localStorage.getItem('dw_theme_' + nameInput)) {
                 localStorage.setItem('dw_theme_' + nameInput, 'dark');
             }
@@ -481,15 +469,12 @@
             const nameVal = document.getElementById('live-cert-name').value.trim() || 'Scholar Name';
             const courseVal = document.getElementById('live-cert-course').value.trim() || 'Professional Course Track';
 
-            // Sync with certificate nodes live
             document.getElementById('cert-user-name').innerText = nameVal;
             document.getElementById('cert-course-name').innerText = courseVal;
 
-            // Save entries live into local storage tracking memory
             localStorage.setItem('dw_cert_name', nameVal);
             localStorage.setItem('dw_cert_course', courseVal);
 
-            // Dynamically compile a deterministic unique validation string based on structural input data parameters
             const verificationId = generateDeterministicUID(nameVal + courseVal);
             document.getElementById('dynamic-uuid').innerHTML = `VERIFICATION ID:<br>${verificationId}`;
         }
@@ -510,7 +495,7 @@
         }
 
         function processThemeFlip() {
-            const currentActiveUser = localStorage.getItem('dw_user_current');
+            const currentActiveUser = localStorage.getItem('dw_user_current') || localStorage.getItem('dw_user_session');
             if (!currentActiveUser) return;
 
             if (document.body.classList.contains('light-mode')) {
@@ -549,7 +534,7 @@
 
         function clearCachedMemory() {
             if (confirm("Purge localized user caching systems? Theme and interface parameters will return to defaults.")) {
-                const user = localStorage.getItem('dw_user_current');
+                const user = localStorage.getItem('dw_user_current') || localStorage.getItem('dw_user_session');
                 if (user) localStorage.removeItem('dw_theme_' + user);
                 localStorage.removeItem('dw_cert_name');
                 localStorage.removeItem('dw_cert_course');
@@ -561,10 +546,11 @@
         function executeSessionLogout() {
             if (confirm("Disconnect modern credentials and exit tracking? Another user session can be bound immediately.")) {
                 localStorage.removeItem('dw_user_current');
+                localStorage.removeItem('dw_user_session');
                 document.getElementById('settings-drawer').classList.remove('active');
                 document.getElementById('settings-chevron').style.transform = 'rotate(0deg)';
                 toggleCertificateModal(false);
-                evaluateSessionState();
+                window.location.href = "index.html";
             }
         }
 
@@ -577,7 +563,6 @@
             return `DW-${cleanNum}-M${str.length}`;
         }
 
-        // --- PDF ENGINE METHOD GENERATOR ---
         function generatePdfDocument() {
             const element = document.getElementById('printable-certificate-card');
             const studentName = document.getElementById('live-cert-name').value.trim() || 'Scholar';
