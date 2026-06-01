@@ -95,7 +95,7 @@
         .welcome-banner { background: radial-gradient(circle at top left, #1E293B, #0F172A); padding: 24px; border-radius: 20px; margin-bottom: 24px; border: 1px solid var(--border); }
         .welcome-banner h2 { font-size: 1.4rem; font-weight: 700; color: #FFF; }
         
-        /* Reading List Progress Trackers */
+        /* Progress Trackers */
         .course-progress-card { background: rgba(255,255,255,0.02); border: 1px solid var(--border); border-radius: 14px; padding: 14px; margin-top: 12px; }
         .course-meta-line { display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; }
         .progress-bar-bg { background: rgba(255,255,255,0.06); height: 6px; border-radius: 4px; margin-top: 8px; overflow: hidden; }
@@ -105,7 +105,7 @@
         .search-container input { padding: 12px 16px 12px 42px; border-radius: 12px; margin: 0; background: var(--surface); }
         .search-container i { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--text-dim); font-size: 1.1rem; }
 
-        /* --- IMAGED PLATFORM CARDS --- */
+        /* --- PLATFORM CARDS --- */
         .section-title { margin: 24px 0 14px; color: var(--text); font-size: 0.9rem; letter-spacing: 0.5px; font-weight: 700; text-transform: uppercase; opacity: 0.6; }
         .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
         
@@ -256,19 +256,19 @@
             <h3 class="section-title">Academic & Skill Trajectories</h3>
             <div class="grid">
                 <div class="card" onclick="window.location.href='University-Courses.html'">
-                    <img src="https://images.unsplash.com/photo-1541339907198-e08756dedf3f?q=80&w=500&auto=format&fit=crop" class="card-img" alt="University Lecture Hall Architecture">
+                    <img src="https://images.unsplash.com/photo-1541339907198-e08756dedf3f?q=80&w=500&auto=format&fit=crop" class="card-img" alt="University Architecture">
                     <span>University<br>Courses</span>
                 </div>
                 <div class="card" onclick="window.location.href='tech-skills.html'">
-                    <img src="https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=400&auto=format&fit=crop" class="card-img" alt="Source Code Editor Environment">
+                    <img src="https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=400&auto=format&fit=crop" class="card-img" alt="Source Code Editor">
                     <span>Tech<br>Skills</span>
                 </div>
                 <div class="card" onclick="window.location.href='kids-learning.html'">
-                    <img src="https://images.unsplash.com/photo-1503676260728-1c00da094a0b?q=80&width=400&auto=format&fit=crop" class="card-img" alt="Foundational Early Development">
+                    <img src="https://images.unsplash.com/photo-1503676260728-1c00da094a0b?q=80&width=400&auto=format&fit=crop" class="card-img" alt="Foundational Development">
                     <span>Kiddies Basic<br>Learning</span>
                 </div>
                 <div class="card" onclick="window.location.href='Curriculum.html'">
-                    <img src="https://images.unsplash.com/photo-1434030216411-0b793f4b4173?q=80&width=400&auto=format&fit=crop" class="card-img" alt="Academic Textbook Examination Layout">
+                    <img src="https://images.unsplash.com/photo-1434030216411-0b793f4b4173?q=80&width=400&auto=format&fit=crop" class="card-img" alt="Academic Exam Layout">
                     <span>Junior / Senior<br>Classes</span>
                 </div>
             </div>
@@ -276,11 +276,11 @@
             <h3 class="section-title">Application Activities</h3>
             <div class="grid">
                 <div class="card" onclick="window.location.href='game.html'">
-                    <img src="https://images.unsplash.com/photo-1538481199705-c710c4e965fc?q=80&width=400&auto=format&fit=crop" class="card-img" alt="Arcade Gamepad Interface">
+                    <img src="https://images.unsplash.com/photo-1538481199705-c710c4e965fc?q=80&width=400&auto=format&fit=crop" class="card-img" alt="Gamepad Interface">
                     <span>Mini Games</span>
                 </div>
                 <div class="card" onclick="window.location.href='saved-courses.html'">
-                    <img src="https://images.unsplash.com/photo-1506784983877-45594efa4cbe?q=80&width=400&auto=format&fit=crop" class="card-img" alt="Desk Notebook Documentation">
+                    <img src="https://images.unsplash.com/photo-1506784983877-45594efa4cbe?q=80&width=400&auto=format&fit=crop" class="card-img" alt="Notebook Documentation">
                     <span>Saved Courses</span>
                 </div>
             </div>
@@ -322,9 +322,8 @@
                 <i class="ri-medal-line" style="font-size: 3rem; color: #D97706;"></i>
             </div>
         </div>
-                    </div>
-<script>
-    // State management: 'register' | 'login' | 'forgot'
+    </div>
+    <script>
     let currentAuthMode = 'register'; 
 
     window.addEventListener('load', () => {
@@ -366,7 +365,6 @@
         const fnField = document.getElementById('field-fullname');
         const phoneField = document.getElementById('field-phone');
 
-        // Reset inputs cleanly
         document.getElementById('reg-username').value = '';
         document.getElementById('reg-password').value = '';
         document.getElementById('reg-fullname').value = '';
@@ -411,19 +409,11 @@
         setupAuthView('forgot');
     }
 
-    // Professional Password Checker Matrix Enforcer via Regex Regex
     function validateProfessionalPassword(password) {
-        // Rule: First character uppercase, followed by lowercase characters, at least 1 symbol, at least 1 digit
-        const regexPattern = /^[A-Z][a-z]+[^A-Za-z0-9\s]+[0-9]+$/;
-        
-        // Simpler fallback check if they mix order of symbols/digits after lowercase string:
-        // Let's enforce the exact structured composition reliably:
         const hasUpperFirst = /^[A-Z]/.test(password);
         const hasLower = /[a-z]/.test(password);
         const hasDigit = /[0-9]/.test(password);
         const hasSymbol = /[^A-Za-z0-9]/.test(password);
-        
-        // Strict consecutive structural check based on prompt layout: Capital -> Small letters -> Symbol -> Digit
         return hasUpperFirst && hasLower && hasDigit && hasSymbol;
     }
 
@@ -433,7 +423,6 @@
         const fullname = document.getElementById('reg-fullname').value.trim();
         const phone = document.getElementById('reg-phone').value.trim();
 
-        // Database collection lookup simulator via LocalStorage array
         let userDatabase = JSON.parse(localStorage.getItem('dw_user_db')) || [];
 
         if (currentAuthMode === 'register') {
@@ -441,33 +430,25 @@
                 return alert("Validation Failure: All system credential fields require real inputs.");
             }
 
-            // Constraint Check: Unique Username
             const usernameExists = userDatabase.some(u => u.username.toLowerCase() === username.toLowerCase());
             if (usernameExists) {
                 return alert("Registration Denied: This username is already registered to a student profile.");
             }
 
-            // Constraint Check: Unique Phone Number
             const phoneExists = userDatabase.some(u => u.phone === phone);
             if (phoneExists) {
                 return alert("Registration Denied: This phone number is already attached to an active profile.");
             }
 
-            // Security Check: Professional Password Rules Enforcer
             if (!validateProfessionalPassword(password)) {
                 return alert("Password Structure Invalid!\n\nRequirements:\n1. Must begin with a Capital letter.\n2. Followed by lowercase letters.\n3. Contain at least one symbol (e.g. @, #, $).\n4. Conclude with a numeric digit.");
             }
 
-            // Save new user object mapping safely
-            const newUser = {
-                username: username,
-                password: password,
-                fullname: fullname,
-                phone: phone
-            };
+            const newUser = { username, password, fullname, phone };
             userDatabase.push(newUser);
             localStorage.setItem('dw_user_db', JSON.stringify(userDatabase));
             localStorage.setItem('dw_user_session', username);
+            localStorage.setItem('dw_user_current', username);
             
             enterHub(username);
 
@@ -480,6 +461,7 @@
             
             if (activeAccount) {
                 localStorage.setItem('dw_user_session', activeAccount.username);
+                localStorage.setItem('dw_user_current', activeAccount.username);
                 enterHub(activeAccount.username);
             } else {
                 alert("Authorization Denied: Invalid combination pattern matching username/password database keys.");
@@ -513,16 +495,15 @@
             greetingWord = "Afternoon";
         }
         
-        // Dynamically displays registered Unique Username on the dashboard header view
         document.getElementById('display-name').innerText = `Good ${greetingWord}, @${username}`;
     }
 
     function executeLogoutAction() {
         if(confirm("Are you sure you want to log out of your current session?")) {
             localStorage.removeItem('dw_user_session');
+            localStorage.removeItem('dw_user_current');
             document.getElementById('main-wrapper').style.display = 'none';
             
-            // Bring forward the onboarding window container natively back to screen state stage 3
             const onboardingOverlay = document.getElementById('onboard-overlay');
             onboardingOverlay.style.display = 'flex';
             document.getElementById('st1').style.display = 'none';
@@ -555,7 +536,7 @@
         } else if (route === 'games') {
             window.location.href = 'game.html';
         } else if (route === 'profile') {
-            window.location.href = 'Profile.html';
+            window.location.href = 'profile.html';
         } else if (route === 'chat') {
             window.location.href = 'live-chat.html';
         }
@@ -563,8 +544,6 @@
 
     function viewCertificate() {
         const activeName = localStorage.getItem('dw_user_session') || "Scholar Profile";
-        
-        // Fallback to fetch Full Legal Name string map row for graduation design layouts
         let userDatabase = JSON.parse(localStorage.getItem('dw_user_db')) || [];
         const accountInfo = userDatabase.find(u => u.username.toLowerCase() === activeName.toLowerCase());
         const printName = accountInfo ? accountInfo.fullname : activeName;
@@ -578,9 +557,9 @@
     }
 
     document.addEventListener('click', () => {
-        document.getElementById('noti-menu').classList.remove('active');
+        const notiMenu = document.getElementById('noti-menu');
+        if(notiMenu) notiMenu.classList.remove('active');
     });
 </script>
-
 </body>
 </html>
